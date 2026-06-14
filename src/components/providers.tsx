@@ -24,7 +24,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
           <SignedIn>
             {children}
             <div className="fixed top-4 right-4">
-              <UserButton />
+              <UserButton afterSignOutUrl="/" />
             </div>
           </SignedIn>
 
