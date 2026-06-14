@@ -1,34 +1,41 @@
 "use client";
 
-import { UnauthenticatedView } from "@/features/auth/components/unauthenticated-view";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  useAuth,
-  UserButton,
-} from "@clerk/nextjs";
-import { ConvexReactClient } from "convex/react";
+  Authenticated,
+  AuthLoading,
+  ConvexReactClient,
+  Unauthenticated,
+} from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
+
+import { AuthLoadingView } from "@/features/auth/components/auth-loading-view";
+import { UnauthenticatedView } from "@/features/auth/components/unauthenticated-view";
+
 import { ThemeProvider } from "./theme-provider";
+import { TooltipProvider } from "./ui/tooltip";
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY!}
-    >
+    <ClerkProvider>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <SignedIn>
-            {children}
-            <div className="fixed top-4 right-4">
-              <UserButton afterSignOutUrl="/" />
-            </div>
-          </SignedIn>
-
-          <SignedOut>{<UnauthenticatedView />}</SignedOut>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            <Authenticated>{children}</Authenticated>
+            <Unauthenticated>
+              <UnauthenticatedView />
+            </Unauthenticated>
+            <AuthLoading>
+              <AuthLoadingView />
+            </AuthLoading>
+          </TooltipProvider>
         </ThemeProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>
